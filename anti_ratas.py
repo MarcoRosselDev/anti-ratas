@@ -14,15 +14,27 @@ Uso:
 
 Requiere: pip install requests
 """
+from datetime import date
+from pathlib import Path
+RATAS_FILE = Path(__file__).parent / "ratas.txt"
+
+def log_rata(login):
+    with open(RATAS_FILE, "a", encoding="utf-8") as f:
+        f.write(f"{login} | {date.today().isoformat()}\n")
+
 import argparse
 import os
 import sys
 import time
 
 import requests
+from dotenv import load_dotenv
+load_dotenv()
 
 API = "https://api.github.com"
 
+xy = os.environ.get("GITHUB_TOKEN")
+print(xy)
 
 def make_session(token):
     s = requests.Session()
@@ -106,6 +118,7 @@ def main():
     for l in ratas:
         if unfollow(s, l):
             done += 1
+            log_rata(l)
             print(f"  ✔ {l}")
         time.sleep(args.delay)
     print(f"\nListo: {done}/{len(ratas)} usuarios dejados de seguir.")

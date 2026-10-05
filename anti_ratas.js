@@ -11,13 +11,21 @@
  *
  * No requiere dependencias: usa fetch nativo.
  */
-import { existsSync, readFileSync } from "node:fs";
+import { appendFileSync, existsSync, readFileSync } from "node:fs";
 
+process.loadEnvFile()
+const RATAS_FILE = new URL("./ratas.txt", import.meta.url);
 const API = "https://api.github.com";
 const token = process.env.GITHUB_TOKEN;
+
 if (!token) {
   console.error("Falta la variable de entorno GITHUB_TOKEN");
   process.exit(1);
+}
+
+function logRata(login) {
+  const fecha = new Date().toISOString().slice(0, 10);
+  appendFileSync(RATAS_FILE, `${login} | ${fecha}\n`, "utf8");
 }
 
 const args = process.argv.slice(2);
@@ -98,6 +106,7 @@ let done = 0;
 for (const l of ratas) {
   if (await unfollow(l)) {
     done++;
+    logRata(l);
     console.log(`  ✔ ${l}`);
   }
   await sleep(delayMs);
